@@ -13,8 +13,12 @@ const URLDatabase = {
 };
 // Homepage displays "Hello!";
 app.get('/', (request, response) => {
-  response.send('Hello!');
+  response.render('pages/index');
 });
+
+app.get('/about', (req, res) => {
+  res.render('pages/about');
+})
 // urls.json displays URLDatabase object in JSON string
 app.get('/urls.json', (req, res) => {
   res.json(URLDatabase);
