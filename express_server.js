@@ -19,11 +19,19 @@ app.get('/', (request, response) => {
 app.get('/about', (req, res) => {
   res.render('pages/about');
 })
-// urls.json displays URLDatabase object in JSON string
+// urls displays URLDatabase object 
 app.get('/urls', (req, res) => {
   const templateVars = { urls: URLDatabase}
   res.render('pages/urls_index', templateVars);
 });
+
+//Routing for urls: shortURL page
+app.get('/urls/:shortURL', (req, res) => {
+  const shortURL = req.params.shortURL;
+  const templateVars = { shortURL: req.params.shortURL, longURL: URLDatabase[shortURL] };
+  //res.send(templateVars);
+  res.render('pages/urls_show', templateVars);
+})
 // Hello page contains html data
 app.get('/hello', (req, res) => {
   res.send('<html><body>Hello <b>World</b></body></html>\n');
