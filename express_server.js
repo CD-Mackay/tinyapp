@@ -20,8 +20,9 @@ app.get('/about', (req, res) => {
   res.render('pages/about');
 })
 // urls.json displays URLDatabase object in JSON string
-app.get('/urls.json', (req, res) => {
-  res.json(URLDatabase);
+app.get('/urls', (req, res) => {
+  const templateVars = { urls: URLDatabase}
+  res.render('pages/urls_index', templateVars);
 });
 // Hello page contains html data
 app.get('/hello', (req, res) => {
