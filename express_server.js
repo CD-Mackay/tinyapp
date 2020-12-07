@@ -7,12 +7,19 @@ app.use(bodyParser.urlencoded({extended: true}));
 //Set view enging to EJS
 app.set('view engine', 'ejs');
 
-
+function generateRandomString() {
+  return Math.random().toString(36).substring(2, 8);
+}
 // Database of valid URLS with unique Ids
 const URLDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+//Post request routing for new urls
+app.post('/urls', (req, res) => {
+  console.log(req.body);
+  res.send('Ok');
+})
 
 //Routing for /urls/new page
 app.get('/urls/new', (req, res) => {
