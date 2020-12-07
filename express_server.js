@@ -11,15 +11,12 @@ const URLDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
-// Homepage displays "Hello!";
-app.get('/', (request, response) => {
-  response.render('pages/index');
-});
 
-app.get('/about', (req, res) => {
-  res.render('pages/about');
-})
-// urls displays URLDatabase object 
+//Routing for /urls/new page
+app.get('/urls/new', (req, res) => {
+  res.render('pages/urls_new');
+});
+// /urls displays URLDatabase object 
 app.get('/urls', (req, res) => {
   const templateVars = { urls: URLDatabase}
   res.render('pages/urls_index', templateVars);
@@ -29,7 +26,6 @@ app.get('/urls', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   const templateVars = { shortURL: req.params.shortURL, longURL: URLDatabase[shortURL] };
-  //res.send(templateVars);
   res.render('pages/urls_show', templateVars);
 })
 // Hello page contains html data
