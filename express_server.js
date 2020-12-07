@@ -17,8 +17,11 @@ const URLDatabase = {
 };
 //Post request routing for new urls
 app.post('/urls', (req, res) => {
+  let id = generateRandomString();
   console.log(req.body);
   res.send('Ok');
+  URLDatabase[id] = req.body['longURL'];
+  console.log(URLDatabase);
 })
 
 //Routing for /urls/new page
