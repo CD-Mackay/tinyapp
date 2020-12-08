@@ -24,6 +24,11 @@ app.post('/urls', (req, res) => {
   URLDatabase[id] = req.body['longURL'];
   res.redirect(`/u/${id}`);
 });
+app.post('/urls/:shortURL/delete', (req, res) => {
+  let shortURL = req.params.shortURL
+  delete URLDatabase[shortURL]
+  res.redirect('/urls');
+})
 
 //Routing for /urls/new page
 app.get('/urls/new', (req, res) => {
