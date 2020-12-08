@@ -30,7 +30,8 @@ app.post('/login', (req, res) => {
 
 //Routing for LOGOUT
 app.post('/logout', (req, res) => {
-  
+  res.clearCookie('username');
+  res.redirect('/urls');
 })
 
 //Post request routing for new urls
