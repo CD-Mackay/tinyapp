@@ -15,14 +15,13 @@ const URLDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
 //Post request routing for new urls
 app.post('/urls', (req, res) => {
   let id = generateRandomString();
-  console.log(req.body);
-  res.send('Ok');
   URLDatabase[id] = req.body['longURL'];
-  console.log(URLDatabase);
-})
+  res.redirect(`/u/${id}`);
+});
 
 //Routing for /urls/new page
 app.get('/urls/new', (req, res) => {
@@ -35,10 +34,11 @@ app.get('/urls', (req, res) => {
 });
 
 //Routing for urls: shortURL page
-app.get('/urls/:shortURL', (req, res) => {
+app.get('/u/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
-  const templateVars = { shortURL: req.params.shortURL, longURL: URLDatabase[shortURL] };
-  res.render('pages/urls_show', templateVars);
+  const longURL = URLDatabase[shortURL];
+  res.redirect(301, longURL);
+  
 })
 // Hello page contains html data
 app.get('/hello', (req, res) => {
