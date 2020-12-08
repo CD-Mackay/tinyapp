@@ -31,6 +31,11 @@ const users = {
     id: "user2RandomID", 
     email: "user2@example.com", 
     password: "dishwasher-funk"
+  },
+  '8l53yy': {
+    id: '8l53yy',
+    email: 'me@googlewontwork.com',
+    password: "password"
   }
 }
 
@@ -51,7 +56,9 @@ app.post('/logout', (req, res) => {
 //Routing for registration page
 app.get('/register', (req, res) => {
   const username = req.cookies['username'];
-  const templateVars =  { username };
+  let userID = req.cookies.userID;
+  let user = users[userID];
+  const templateVars = { username, user };
   res.render('pages/registration', templateVars)
 });
 
@@ -62,7 +69,7 @@ app.post('/register', (req, res) => {
   let password = req.body.password
   users[userID] = {id: userID, email, password};
   res.cookie('userID', userID, {httponly: true})
-  res.redirect('/register');
+  res.redirect('/urls');
 })
 
 //Post request routing for new urls
@@ -90,21 +97,27 @@ app.post('/urls/:shortURL/edit', (req, res) => {
 app.get('/urls/show/:shortURL', (req, res) => {
   let shortURL = req.params.shortURL;
   const username = req.cookies['username'];
-  const templateVars =  { shortURL, longURL: URLDatabase[shortURL], username };
+  let userID = req.cookies.userID;
+  let user = users[userID];
+  const templateVars =  { shortURL, longURL: URLDatabase[shortURL], user };
   res.render('pages/urls_show', templateVars);
 });
 
 //Routing for /urls/new page
 app.get('/urls/new', (req, res) => {
   const username = req.cookies['username'];
-  const templateVars =  { username };
+  let userID = req.cookies.userID;
+  let user = users[userID];
+  const templateVars =  { user };
   res.render('pages/urls_new', templateVars);
 });
 
 // /urls displays URLDatabase object
 app.get('/urls', (req, res) => {
   const username = req.cookies['username'];
-  const templateVars = { urls: URLDatabase, username, };
+  let userID = req.cookies.userID;
+  let user = users[userID];
+  const templateVars = { urls: URLDatabase, user, };
   res.render('pages/urls_index', templateVars);
 });
 

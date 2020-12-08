@@ -9,7 +9,7 @@
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
-      <% if (!username) { %>
+      <% if (!user) { %>
       <form method="POST" action="/login">
       <input type="text" placeholder="User name" value= "" name="username">
       <button type="Submit">Set username</button>
@@ -18,7 +18,7 @@
       <form method="POST" action="/logout">
         <button type="Submit">logout</button>
       </form>
-      <p class="card-text">You are currently logged in as: <%=username%></p>
+      <p class="card-text">You are currently logged in as: <%=user.email%></p>
       <% } %>
 
     </div>
