@@ -19,12 +19,18 @@ const URLDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
-// Routing for login requests
+
+// Routing for LOGOUT requests
 app.post('/login', (req, res) => {
   console.log(req.body);
   let userName = req.body.username;
   res.cookie('username', userName, {httpOnly: true});
   res.redirect('/urls');
+})
+
+//Routing for LOGOUT
+app.post('/logout', (req, res) => {
+  
 })
 
 //Post request routing for new urls
