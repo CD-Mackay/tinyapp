@@ -6,12 +6,16 @@
   </head>
 
   <body>
+    <%- include('../partials/_header') %>
     <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
-        <h5 class="card-title">TinyUrl for: <%= longURL %></h5>
-        <p class="card-text">short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
-        <a href="#">Create new URL</a>
+        <h5 class="card-title">TinyUrl for: <%= longURL%></h5>
+        <p class="card-text">short URL: <a href="/u/<%= shortURL%>"><%= shortURL%></a></p>
+        <form method="POST" action="/urls/<%=shortURL%>/edit">
+          <input type="text" placeholder="Updated URL here" value="<%=longURL%>" name="longURL">
+          <button type="Submit">Edit!</button>
+        </form>
       </div>
       <div class="card-footer text-muted"></div>
     </div>

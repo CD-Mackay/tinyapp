@@ -24,10 +24,26 @@ app.post('/urls', (req, res) => {
   URLDatabase[id] = req.body['longURL'];
   res.redirect(`/u/${id}`);
 });
+
+// Routing for delete requests
 app.post('/urls/:shortURL/delete', (req, res) => {
   let shortURL = req.params.shortURL
   delete URLDatabase[shortURL]
   res.redirect('/urls');
+});
+
+//Routing to handle updates to URLS
+app.post('/urls/:shortURL/edit', (req, res) => {
+  let shortURL = req.params.shortURL;
+  URLDatabase[shortURL] = req.body.longURL;
+  res.redirect('/urls')
+})
+
+//Routing for URLS/show page
+app.get('/urls/show/:shortURL', (req, res) => {
+  let shortURL = req.params.shortURL
+  const templateVars =  { shortURL, longURL: URLDatabase[shortURL] };
+  res.render('pages/urls_show', templateVars);
 })
 
 //Routing for /urls/new page
@@ -37,7 +53,7 @@ app.get('/urls/new', (req, res) => {
 
 // /urls displays URLDatabase object
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: URLDatabase};
+  const templateVars = { urls: URLDatabase };
   res.render('pages/urls_index', templateVars);
 });
 
