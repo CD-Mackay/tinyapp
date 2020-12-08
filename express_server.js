@@ -65,7 +65,9 @@ app.get('/urls/show/:shortURL', (req, res) => {
 
 //Routing for /urls/new page
 app.get('/urls/new', (req, res) => {
-  res.render('pages/urls_new');
+  const username = req.cookies['username'];
+  const templateVars =  { username };
+  res.render('pages/urls_new', templateVars);
 });
 
 // /urls displays URLDatabase object
