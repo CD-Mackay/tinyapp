@@ -20,6 +20,20 @@ const URLDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// User Database (shamelessly stolen from Compass)
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
 // Routing for LOGOUT requests
 app.post('/login', (req, res) => {
   console.log(req.body);
@@ -33,6 +47,23 @@ app.post('/logout', (req, res) => {
   res.clearCookie('username');
   res.redirect('/urls');
 });
+
+//Routing for registration page
+app.get('/register', (req, res) => {
+  const username = req.cookies['username'];
+  const templateVars =  { username };
+  res.render('pages/registration', templateVars)
+});
+
+//Routing to register a new user
+app.post('/register', (req, res) => {
+  let userID = generateRandomString();
+  let email = req.body.email;
+  let password = req.body.password
+  users[userID] = {id: userID, email, password};
+  res.cookie('userID', userID, {httponly: true})
+  res.redirect('/register');
+})
 
 //Post request routing for new urls
 app.post('/urls', (req, res) => {
