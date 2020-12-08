@@ -2,7 +2,9 @@ const express = require('express');
 const app = express();
 const port = 8080;
 const bodyParser = require('body-parser');
+const cookieParser=require('cookie-parser');
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 
 //Set view engine to EJS
 app.set('view engine', 'ejs');
@@ -17,6 +19,20 @@ const URLDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+// Routing for LOGOUT requests
+app.post('/login', (req, res) => {
+  console.log(req.body);
+  let userName = req.body.username;
+  res.cookie('username', userName, {httpOnly: true});
+  res.redirect('/urls');
+})
+
+//Routing for LOGOUT
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
+  res.redirect('/urls');
+})
 
 //Post request routing for new urls
 app.post('/urls', (req, res) => {
@@ -37,14 +53,15 @@ app.post('/urls/:shortURL/edit', (req, res) => {
   let shortURL = req.params.shortURL;
   URLDatabase[shortURL] = req.body.longURL;
   res.redirect('/urls')
-})
+});
 
 //Routing for URLS/show page
 app.get('/urls/show/:shortURL', (req, res) => {
   let shortURL = req.params.shortURL
-  const templateVars =  { shortURL, longURL: URLDatabase[shortURL] };
+  const username = req.cookies['username'];
+  const templateVars =  { shortURL, longURL: URLDatabase[shortURL], username };
   res.render('pages/urls_show', templateVars);
-})
+});
 
 //Routing for /urls/new page
 app.get('/urls/new', (req, res) => {
@@ -53,7 +70,8 @@ app.get('/urls/new', (req, res) => {
 
 // /urls displays URLDatabase object
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: URLDatabase };
+  const username = req.cookies['username'];
+  const templateVars = { urls: URLDatabase, username, };
   res.render('pages/urls_index', templateVars);
 });
 
