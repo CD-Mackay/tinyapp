@@ -55,4 +55,13 @@ const { urlsForUser } = require('../helpers.js');
   });
 
 // Unit testing for urlsforUser function
-
+  describe('urlsforUser', function() {
+    it('should return an object containg key value pairs for each url associated with the provided userID', function() {
+      const expectedOutput = {"9sm5xK": "http://www.google.com" };
+      assert.deepEqual(urlsForUser('kb8w25', testDatabase), expectedOutput);
+    });
+    it('should return an empty object if no urls exists for that ID', function() {
+      const expectedOutput = {};
+      assert.deepEqual(urlsForUser("user2RandomID", testDatabase), expectedOutput);
+    })
+  })
