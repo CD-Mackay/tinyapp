@@ -25,7 +25,7 @@
               <td><%= urls[url]%></td>
               <td>
               <form method="POST" action='/urls/<%=url%>/delete'>
-                <button type="submit">Delete</button>
+                <button type="submit" class="btn btn-outline-danger">Delete</button>
               </form>
             </td>
             <td>
@@ -33,7 +33,7 @@
             </td>
             </tr>
             <% } %>
-            <tr><a href="#">Click here to shorten your own URL</a></tr>
+            <tr><a href="/urls/new">Click here to shorten your own URL</a></tr>
         </tbody>
       </table>
     </main>
