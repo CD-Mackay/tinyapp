@@ -48,6 +48,22 @@ const userExists = function(email) {
   } return false;
 };
 
+// Function for checking passwords
+const passwordIsValid = function(userID, password) {
+  if (users[userID].password === password) {
+    return true;
+  } return false;
+};
+
+// Retrieve the users ID using email
+const getUserID = function(email) {
+  for (const user in users) {
+    if (users[user].email === email) {
+      return user;
+    }
+  }
+}
+
 // Routing for LOGIN Page
 app.get('/login', (req, res) => {
   res.render('pages/login');
@@ -56,24 +72,32 @@ app.get('/login', (req, res) => {
 // Routing for LOGIN requests
 app.post('/login', (req, res) => {
   console.log(req.body);
-  let userName = req.body.username;
-  res.cookie('username', userName, {httpOnly: true});
+  let email = req.body.email;
+  let password = req.body.password;
+   console.log(password);
+  let userID = getUserID(email);
+  console.log(userID);
+  if (userExists(email) && passwordIsValid(userID, password)) {
+    res.cookie('userID', userID, {httponly: true});
+  } else if (!userExists(email)) {
+    res.send('Invalid email. Status code 403')
+  } else if (!passwordIsValid(userID, password)) {
+    res.send('Invalid Password. StatusCode 403')
+  }
   res.redirect('/urls');
 });
 
 //Routing for LOGOUT
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
   res.clearCookie('userID');
   res.redirect('/urls');
 });
 
 //Routing for registration page
 app.get('/register', (req, res) => {
-  const username = req.cookies['username'];
   let userID = req.cookies.userID;
   let user = users[userID];
-  const templateVars = { username, user };
+  const templateVars = { user };
   res.render('pages/registration', templateVars)
 });
 
@@ -115,7 +139,6 @@ app.post('/urls/:shortURL/edit', (req, res) => {
 //Routing for URLS/show page
 app.get('/urls/show/:shortURL', (req, res) => {
   let shortURL = req.params.shortURL;
-  const username = req.cookies['username'];
   let userID = req.cookies.userID;
   let user = users[userID];
   const templateVars =  { shortURL, longURL: URLDatabase[shortURL], user };
@@ -124,7 +147,6 @@ app.get('/urls/show/:shortURL', (req, res) => {
 
 //Routing for /urls/new page
 app.get('/urls/new', (req, res) => {
-  const username = req.cookies['username'];
   let userID = req.cookies.userID;
   let user = users[userID];
   const templateVars =  { user };
@@ -133,7 +155,6 @@ app.get('/urls/new', (req, res) => {
 
 // /urls displays URLDatabase object
 app.get('/urls', (req, res) => {
-  const username = req.cookies['username'];
   let userID = req.cookies.userID;
   let user = users[userID];
   const templateVars = { urls: URLDatabase, user, };
