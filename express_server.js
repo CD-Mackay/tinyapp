@@ -63,7 +63,17 @@ const getUserID = function(email) {
       return user;
     }
   }
-}
+};
+
+// Retrieve list of URLS associated with userID
+const urlsForUser = function(id) {
+  let results = {}
+  for (const url in URLDatabase) {
+    if (URLDatabase[url].userID === id) {
+      results[url] = URLDatabase[url].longURL;
+    }
+  } return results;
+};
 
 // Routing for LOGIN Page
 app.get('/login', (req, res) => {
@@ -126,17 +136,24 @@ app.post('/urls', (req, res) => {
 // Routing for delete requests
 app.post('/urls/:shortURL/delete', (req, res) => {
   let shortURL = req.params.shortURL;
+  if (req.cookies.userID) {
   delete URLDatabase[shortURL];
   res.redirect('/urls');
+  } else {
+    res.redirect('/login');
+  }
+  
 });
 
 //Routing to handle updates to URLS
 app.post('/urls/:shortURL/edit', (req, res) => {
   let shortURL = req.params.shortURL;
+  if (req.cookies.userID) {
   URLDatabase[shortURL] = { longURL: req.body.longURL, userID: req.cookies.userID };
-  console.log(req.body.longURL);
-  console.log(URLDatabase);
   res.redirect('/urls');
+  } else {
+    res.redirect('/login');
+  }
 });
 
 //Routing for URLS/show page
@@ -164,7 +181,8 @@ app.get('/urls/new', (req, res) => {
 app.get('/urls', (req, res) => {
   let userID = req.cookies.userID;
   let user = users[userID];
-  const templateVars = { urls: URLDatabase, user, };
+  const urlsForPage = urlsForUser(userID);
+  const templateVars = { urls: urlsForPage, user, };
   res.render('pages/urls_index', templateVars);
 });
 
