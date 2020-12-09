@@ -16,8 +16,9 @@ const generateRandomString = function() {
 
 // Database of valid URLS with unique Ids
 const URLDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID" },
+  "9sm5xK": { longURL: "http://www.google.com", userID: '8l53yy' }
 };
 
 // User Database (shamelessly stolen from Compass)
@@ -74,12 +75,9 @@ app.get('/login', (req, res) => {
 
 // Routing for LOGIN requests
 app.post('/login', (req, res) => {
-  console.log(req.body);
   let email = req.body.email;
   let password = req.body.password;
-   console.log(password);
   let userID = getUserID(email);
-  console.log(userID);
   if (userExists(email) && passwordIsValid(userID, password)) {
     res.cookie('userID', userID, {httponly: true});
   } else if (!userExists(email)) {
@@ -120,9 +118,9 @@ app.post('/register', (req, res) => {
 
 //Post request routing for new urls
 app.post('/urls', (req, res) => {
-  let id = generateRandomString();
-  URLDatabase[id] = req.body['longURL'];
-  res.redirect(`/u/${id}`);
+  let shortURL = generateRandomString();
+  URLDatabase[shortURL] = { longURL: req.body['longURL'], userID: req.cookies.userID};
+  res.redirect(`/u/${shortURL}`);
 });
 
 // Routing for delete requests
@@ -135,7 +133,9 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 //Routing to handle updates to URLS
 app.post('/urls/:shortURL/edit', (req, res) => {
   let shortURL = req.params.shortURL;
-  URLDatabase[shortURL] = req.body.longURL;
+  URLDatabase[shortURL] = { longURL: req.body.longURL, userID: req.cookies.userID };
+  console.log(req.body.longURL);
+  console.log(URLDatabase);
   res.redirect('/urls');
 });
 
@@ -144,7 +144,7 @@ app.get('/urls/show/:shortURL', (req, res) => {
   let shortURL = req.params.shortURL;
   let userID = req.cookies.userID;
   let user = users[userID];
-  const templateVars =  { shortURL, longURL: URLDatabase[shortURL], user };
+  const templateVars =  { shortURL, longURL: URLDatabase[shortURL], user }; 
   res.render('pages/urls_show', templateVars);
 });
 
@@ -152,8 +152,12 @@ app.get('/urls/show/:shortURL', (req, res) => {
 app.get('/urls/new', (req, res) => {
   let userID = req.cookies.userID;
   let user = users[userID];
-  const templateVars =  { user };
-  res.render('pages/urls_new', templateVars);
+  if (userID) {
+    const templateVars =  { user };
+    res.render('pages/urls_new', templateVars);
+  } else {
+    res.redirect('/login');
+  }
 });
 
 // /urls displays URLDatabase object
@@ -167,7 +171,7 @@ app.get('/urls', (req, res) => {
 //Routing for urls: shortURL page
 app.get('/u/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = URLDatabase[shortURL];
+  const longURL = URLDatabase[shortURL].longURL;
   res.redirect(301, longURL);
 });
 
