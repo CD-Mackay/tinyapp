@@ -12,7 +12,7 @@ app.set('view engine', 'ejs');
 //Generate unique ID for new URLS
 const generateRandomString = function() {
   return Math.random().toString(36).substring(2, 8);
-}
+};
 
 // Database of valid URLS with unique Ids
 const URLDatabase = {
@@ -37,9 +37,19 @@ const users = {
     email: 'me@googlewontwork.com',
     password: "password"
   }
-}
+};
 
-// Routing for LOGOUT requests
+//Helper function to determine if an email address is already being used
+const userExists = function(email) {
+  for (const user in users) {
+    if (users[user].email === email) {
+      return true;
+    }
+  } return false;
+};
+
+
+// Routing for LOGIN requests
 app.post('/login', (req, res) => {
   console.log(req.body);
   let userName = req.body.username;
@@ -50,6 +60,7 @@ app.post('/login', (req, res) => {
 //Routing for LOGOUT
 app.post('/logout', (req, res) => {
   res.clearCookie('username');
+  res.clearCookie('userID');
   res.redirect('/urls');
 });
 
@@ -67,8 +78,12 @@ app.post('/register', (req, res) => {
   let userID = generateRandomString();
   let email = req.body.email;
   let password = req.body.password
+  if (!userExists(email) && password !== "") {
   users[userID] = {id: userID, email, password};
-  res.cookie('userID', userID, {httponly: true})
+  res.cookie('userID', userID, {httponly: true});
+  } else {
+    res.send('400 error');
+  }
   res.redirect('/urls');
 })
 
