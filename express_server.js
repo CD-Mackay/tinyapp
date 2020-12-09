@@ -4,8 +4,13 @@ const port = 8080;
 const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1']
+}));
 
 //Set view engine to EJS
 app.set('view engine', 'ejs');
@@ -23,13 +28,13 @@ const URLDatabase = {
 };
 
 // User Database (shamelessly stolen from Compass)
-const users = {
+const users = { 
   'wym92o':
    { id: 'wym92o',
      email: 'user@example.com',
      password: '$2b$10$F76oVw2iH0Ds31OfdICK/O3awH4S138IrgQMt.hJK3xTzvB.giSX6'
-   },
-  q6nlil:
+     },
+     q6nlil:
      { id: 'q6nlil',
        email: 'user2@example.com',
        password:
@@ -42,77 +47,44 @@ const users = {
      '$2b$10$gwMWu.mDlnIBqVaaYQyRvuCqUNU6c6Ww9TmJNjZUV.dXkL8T0PsyW' }
 };
 
-//Helper function to determine if an email address is already being used
-const userExists = function(email) {
-  for (const user in users) {
-    if (users[user].email === email) {
-      return true;
-    }
-  } return false;
-};
-
-// Function for checking passwords
-const passwordIsValid = function(userID, password) {
-  if (users[userID].password === password) {
-    return true;
-  } return false;
-};
-
-// Retrieve the users ID using email
-const getUserID = function(email) {
-  for (const user in users) {
-    if (users[user].email === email) {
-      return user;
-    }
-  }
-};
-
-// Retrieve list of URLS associated with userID
-const urlsForUser = function(id) {
-  let results = {};
-  for (const url in URLDatabase) {
-    if (URLDatabase[url].userID === id) {
-      results[url] = URLDatabase[url].longURL;
-    }
-  } return results;
-};
-
 // Routing for LOGIN Page
 app.get('/login', (req, res) => {
-  let userID = req.cookies.userID;
+  let userID = req.session.userID;
   let user = users[userID];
-  let templateVars = { user };
+  let templateVars = { user }
   res.render('pages/login', templateVars);
-});
+})
 
 // Routing for LOGIN requests
 app.post('/login', (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
-  let userID = getUserID(email);
-  if (userExists(email) && bcrypt.compareSync(password, users[userID].password)) {
-    res.cookie('userID', userID, {httponly: true});
-    console.log(users);
-  } else if (!userExists(email)) {
-    res.send('Invalid email. Status code 403');
-  } else if (!passwordIsValid(userID, password)) {
-    res.send('Invalid Password. StatusCode 403');
+  let userID = getUserID(email, users);
+  console.log(email, users);
+  if (userExists(email, users) && bcrypt.compareSync(password, users[userID].password)) {
+    req.session.userID = userID;
+    res.redirect('/urls');
+  } else if (!userExists(email, users)) {
+    res.send('Invalid email. Status code 403')
+  } else if (!passwordIsValid(userID, password, users)) {
+    res.send('Invalid Password. StatusCode 403')
   }
-  res.redirect('/urls');
+
 });
 
 //Routing for LOGOUT
 app.post('/logout', (req, res) => {
   res.clearCookie('userID');
+  req.session = null;
   res.redirect('/urls');
 });
 
 //Routing for registration page
 app.get('/register', (req, res) => {
-  let userID = req.cookies.userID;
+  let userID = req.session.userID;
   let user = users[userID];
   const templateVars = { user };
-  res.render('pages/registration', templateVars);
+  res.render('pages/registration', templateVars)
 });
 
 //Routing to register a new user
@@ -121,28 +93,28 @@ app.post('/register', (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
-  if (!userExists(email) && password !== "") {
-    users[userID] = {id: userID, email, password: hashedPassword};
-    res.cookie('userID', userID, {httponly: true});
+  if (!userExists(email, URLDatabase) && password !== "") {
+  users[userID] = {id: userID, email, password: hashedPassword};
+  req.session.userID = userID;
   } else {
-    res.send('400 error');
+    res.send('<h1>400 error. Invalid email and/ or password</h1>');
   }
   res.redirect('/urls');
-});
+})
 
 //Post request routing for new urls
 app.post('/urls', (req, res) => {
   let shortURL = generateRandomString();
-  URLDatabase[shortURL] = { longURL: req.body['longURL'], userID: req.cookies.userID};
+  URLDatabase[shortURL] = { longURL: req.body['longURL'], userID: req.session.userID};
   res.redirect(`/u/${shortURL}`);
 });
 
 // Routing for delete requests
 app.post('/urls/:shortURL/delete', (req, res) => {
   let shortURL = req.params.shortURL;
-  if (req.cookies.userID) {
-    delete URLDatabase[shortURL];
-    res.redirect('/urls');
+  if (req.session.userID) {
+  delete URLDatabase[shortURL];
+  res.redirect('/urls');
   } else {
     res.redirect('/login');
   }
@@ -152,9 +124,9 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 //Routing to handle updates to URLS
 app.post('/urls/:shortURL/edit', (req, res) => {
   let shortURL = req.params.shortURL;
-  if (req.cookies.userID) {
-    URLDatabase[shortURL] = { longURL: req.body.longURL, userID: req.cookies.userID };
-    res.redirect('/urls');
+  if (req.session.userID) {
+  URLDatabase[shortURL] = { longURL: req.body.longURL, userID: req.session.userID };
+  res.redirect('/urls');
   } else {
     res.redirect('/login');
   }
@@ -163,15 +135,15 @@ app.post('/urls/:shortURL/edit', (req, res) => {
 //Routing for URLS/show page
 app.get('/urls/show/:shortURL', (req, res) => {
   let shortURL = req.params.shortURL;
-  let userID = req.cookies.userID;
+  let userID = req.session.userID;
   let user = users[userID];
-  const templateVars =  { shortURL, longURL: URLDatabase[shortURL], user };
+  const templateVars =  { shortURL, longURL: URLDatabase[shortURL], user }; 
   res.render('pages/urls_show', templateVars);
 });
 
 //Routing for /urls/new page
 app.get('/urls/new', (req, res) => {
-  let userID = req.cookies.userID;
+  let userID = req.session.userID;
   let user = users[userID];
   if (userID) {
     const templateVars =  { user };
@@ -183,9 +155,9 @@ app.get('/urls/new', (req, res) => {
 
 // /urls displays URLDatabase object
 app.get('/urls', (req, res) => {
-  let userID = req.cookies.userID;
+  let userID = req.session.userID;
   let user = users[userID];
-  const urlsForPage = urlsForUser(userID);
+  const urlsForPage = urlsForUser(userID, URLDatabase);
   const templateVars = { urls: urlsForPage, user, };
   res.render('pages/urls_index', templateVars);
 });
