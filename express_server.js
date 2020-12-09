@@ -48,6 +48,10 @@ const userExists = function(email) {
   } return false;
 };
 
+// Routing for LOGIN Page
+app.get('/login', (req, res) => {
+  res.render('pages/login');
+})
 
 // Routing for LOGIN requests
 app.post('/login', (req, res) => {

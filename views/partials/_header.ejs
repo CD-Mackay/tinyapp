@@ -10,15 +10,13 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
       <% if (!user) { %>
-      <form method="POST" action="/login">
-      <input type="text" placeholder="User name" value= "" name="username">
-      <button type="Submit">Set username</button>
-    </form>
+      <a class="btn-primary" href="/register">Register Now!</a>
+      <a class="btn-primary" href="/login">Already registered? Login here!</a>
     <% } else { %>
-      <form method="POST" action="/logout">
-        <button type="Submit">logout</button>
-      </form>
       <p class="card-text">You are currently logged in as: <%=user.email%></p>
+      <form method="POST" action="/logout">
+        <button type="submit">LOGOUT</button>
+      </form>
       <% } %>
 
     </div>
