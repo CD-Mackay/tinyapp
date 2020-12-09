@@ -66,7 +66,10 @@ const getUserID = function(email) {
 
 // Routing for LOGIN Page
 app.get('/login', (req, res) => {
-  res.render('pages/login');
+  let userID = req.cookies.userID;
+  let user = users[userID];
+  let templateVars = { user }
+  res.render('pages/login', templateVars);
 })
 
 // Routing for LOGIN requests
