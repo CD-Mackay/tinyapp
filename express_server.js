@@ -1,3 +1,9 @@
+//module.require = { userExists, passwordIsValid, getUserID, urlsForUser };
+const { userExists } = require('./helpers');
+const { passwordIsValid } = require('./helpers');
+const { getUserID } = require('./helpers');
+const { urlsForUser } = require('./helpers');
+const { generateRandomString } = require('./helpers');
 const express = require('express');
 const app = express();
 const port = 8080;
@@ -15,16 +21,11 @@ app.use(cookieSession({
 //Set view engine to EJS
 app.set('view engine', 'ejs');
 
-//Generate unique ID for new URLS
-const generateRandomString = function() {
-  return Math.random().toString(36).substring(2, 8);
-};
-
 // Database of valid URLS with unique Ids
 const URLDatabase = {
 
   "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID" },
-  "9sm5xK": { longURL: "http://www.google.com", userID: '8l53yy' }
+  "9sm5xK": { longURL: "http://www.google.com", userID: 'kb8w25' }
 };
 
 // User Database (shamelessly stolen from Compass)
@@ -66,7 +67,7 @@ app.post('/login', (req, res) => {
     res.redirect('/urls');
   } else if (!userExists(email, users)) {
     res.send('Invalid email. Status code 403')
-  } else if (!passwordIsValid(userID, password, users)) {
+  } else if (!bcrypt.compareSync(password, users[userID].password)) {
     res.send('Invalid Password. StatusCode 403')
   }
 

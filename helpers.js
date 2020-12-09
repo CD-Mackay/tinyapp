@@ -7,13 +7,6 @@ const userExists = function(email, database) {
   } return false;
 };
 
-// Function for checking passwords
-const passwordIsValid = function(userID, password, database) {
-  if (database[userID].password === password) {
-    return true;
-  } return false;
-};
-
 // Retrieve the User ID using email
 const getUserID = function(email, database) {
   for (const user in database) {
@@ -32,3 +25,10 @@ const urlsForUser = function(id, database) {
     }
   } return results;
 };
+
+//Generate unique ID for new URLS
+const generateRandomString = function() {
+  return Math.random().toString(36).substring(2, 8);
+};
+
+module.exports = { userExists, getUserID, urlsForUser, generateRandomString }
