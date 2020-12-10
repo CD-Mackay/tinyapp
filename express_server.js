@@ -9,6 +9,7 @@ const port = 8080;
 const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
+//const router = express.Router({ mergeParams: true });
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
@@ -22,8 +23,8 @@ app.set('view engine', 'ejs');
 const URLDatabase = {
 
   "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID" },
-  "9sm5xK": { longURL: "http://www.google.com", userID: 'kb8w25' }
-};
+  "12345": { longURL: "http://www.google.com", userID: 'kb8w25' },
+}; 
 
 // User Database (shamelessly stolen from Compass)
 const users = {
@@ -103,8 +104,7 @@ app.post('/register', (req, res) => {
     users[userID] = {id: userID, email, password: hashedPassword};
     req.session.userID = userID;
   } else {
-    res.send('<h1>400 error. Invalid email and/ or password</h1>');
-  }
+    res.send('<h1>400 error. Invalid email</h1>'); }
   res.redirect('/urls');
 });
 
@@ -112,7 +112,7 @@ app.post('/register', (req, res) => {
 app.post('/urls', (req, res) => {
   let shortURL = generateRandomString();
   URLDatabase[shortURL] = { longURL: req.body['longURL'], userID: req.session.userID};
-  res.redirect(`/u/${shortURL}`);
+  res.redirect(`/urls/${shortURL}`);
 });
 
 // Routing for delete requests
@@ -124,7 +124,6 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   } else {
     res.redirect('/login');
   }
-  
 });
 
 //Routing to handle updates to URLS
@@ -138,20 +137,11 @@ app.post('/urls/:shortURL/edit', (req, res) => {
   }
 });
 
-//Routing for URLS/show page
-app.get('/urls/show/:shortURL', (req, res) => {
-  let shortURL = req.params.shortURL;
-  let userID = req.session.userID;
-  let user = users[userID];
-  const templateVars =  { shortURL, longURL: URLDatabase[shortURL], user };
-  res.render('pages/urls_show', templateVars);
-});
-
 //Routing for /urls/new page
 app.get('/urls/new', (req, res) => {
   let userID = req.session.userID;
   let user = users[userID];
-  if (userID) {
+  if (user) {
     const templateVars =  { user };
     res.render('pages/urls_new', templateVars);
   } else {
@@ -159,20 +149,48 @@ app.get('/urls/new', (req, res) => {
   }
 });
 
+//Routing for URLS/show page
+app.get('/urls/:shortURL', (req, res) => {
+  let shortURL = req.params.shortURL;
+  let longURL = URLDatabase[shortURL].longURL;
+  let userID = req.session.userID;
+  let user = users[userID];
+  let userOwns;
+  if (user) {
+    console.log(user);
+  if (user.id === URLDatabase[shortURL].userID) {
+    userOwns = true;
+  } else {
+    userOwns = false;
+  }
+}
+  const templateVars =  { shortURL, longURL, user, userOwns };
+  res.render('pages/urls_show', templateVars);
+  
+});
+
+
 // /urls displays URLDatabase object
 app.get('/urls', (req, res) => {
+  if (req.session.userID) {
   let userID = req.session.userID;
   let user = users[userID];
   const urlsForPage = urlsForUser(userID, URLDatabase);
   const templateVars = { urls: urlsForPage, user, };
   res.render('pages/urls_index', templateVars);
+  } else {
+    let user = null;
+    let url = null;
+    const templateVars = { user, urls: url }
+    res.render('pages/urls_index', templateVars);
+  }
 });
 
 //Routing for urls: shortURL page
 app.get('/u/:shortURL', (req, res) => {
-  const shortURL = req.params.shortURL;
-  const longURL = URLDatabase[shortURL].longURL;
-  res.redirect(301, longURL);
+  console.log(req.params);
+  const longURL = URLDatabase[req.params.shortURL].longURL;
+  res.redirect(longURL);
 });
 
 // Hello page contains html data
