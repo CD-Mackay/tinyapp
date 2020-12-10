@@ -10,13 +10,21 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
       <% if (!user) { %>
-      <a class="btn-primary" href="/register">Register Now!</a>
-      <a class="btn-primary" href="/login">Already registered? Login here!</a>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup"></div>
+     <div class="navbar-nav" style="justify-self: end;">
+      <a class="nav-item nav-link" href="/register" >Register Now!</a>
+      <a class="nav-item nav-link" href="/login" >Login</a>
+    </div>
+  </div>
     <% } else { %>
-      <p class="card-text">You are currently logged in as: <%=user.email%></p>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup"></div>
+     <div class="navbar-nav" style="justify-self: end;">
+      <p class="card-text">Logged in as: <%=user.email%></p>
       <form method="POST" action="/logout">
         <button type="submit">LOGOUT</button>
       </form>
+    </div>
+  </div>
       <% } %>
 
     </div>
