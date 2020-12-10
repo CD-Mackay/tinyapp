@@ -1,15 +1,10 @@
-//module.require = { userExists, passwordIsValid, getUserID, urlsForUser };
-const { userExists } = require('./helpers');
-const { getUserID } = require('./helpers');
-const { urlsForUser } = require('./helpers');
-const { generateRandomString } = require('./helpers');
+const { userExists, getUserID, urlsForUser, generateRandomString } = require('./helpers');
 const express = require('express');
 const app = express();
 const port = 8080;
 const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
-//const router = express.Router({ mergeParams: true });
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
@@ -24,7 +19,7 @@ const URLDatabase = {
 
   "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID" },
   "12345": { longURL: "http://www.google.com", userID: 'kb8w25' },
-}; 
+};
 
 // User Database (shamelessly stolen from Compass)
 const users = {
@@ -48,12 +43,12 @@ const users = {
 
 // Routing for LOGIN Page
 app.get('/login', (req, res) => {
-  if (req.session.userID) {
-    res.redirect('/urls');
-  }
   let userID = req.session.userID;
   let user = users[userID];
   let templateVars = { user };
+  if (userID) {
+    res.redirect('/urls');
+  }
   res.render('pages/login', templateVars);
 });
 
@@ -76,11 +71,11 @@ app.post('/login', (req, res) => {
 //Routing for homepage (GET /)
 app.get('/', (req, res) => {
   if (req.session.userID) {
-    res.redirect('/urls')
+    res.redirect('/urls');
   } else {
     res.redirect('/login');
   }
-})
+});
 
 //Routing for LOGOUT
 app.post('/logout', (req, res) => {
@@ -104,16 +99,17 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
   let userID = generateRandomString();
   let email = req.body.email;
-  let password = req.body.password;
-  const hashedPassword = bcrypt.hashSync(password, 10);
+  let password = req.body.password
+  const hashedPassword = bcrypt.hashSync(req.body.password, 10);
   if (!userExists(email, users) && password !== "") {
     users[userID] = {id: userID, email, password: hashedPassword};
     req.session.userID = userID;
+    console.log(users);
   } else if (userExists(email, users)) {
-    res.send('<h1>400 error. That email address is already registered.</h1>'); 
+    res.send('<h1>400 error. That email address is already registered.</h1>');
   } else if (password === "") {
-      res.send('<h1>400 error. Please enter a valid password.</h1>');
-    }
+    res.send('<h1>400 error. Please enter a valid password.</h1>');
+  }
   res.redirect('/urls');
 });
 
@@ -162,7 +158,7 @@ app.get('/urls/new', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   let shortURL = req.params.shortURL;
   if (!URLDatabase[shortURL]) {
-    res.send('<h1>Error. No URLS registered for that ID</h1>')
+    res.send('<h1>Error. No URLS registered for that ID</h1>');
   }
   let longURL = URLDatabase[shortURL].longURL;
   let userID = req.session.userID;
@@ -170,12 +166,12 @@ app.get('/urls/:shortURL', (req, res) => {
   let userOwns;
   if (user) {
     console.log(user);
-  if (user.id === URLDatabase[shortURL].userID) {
-    userOwns = true;
-  } else {
-    userOwns = false;
+    if (user.id === URLDatabase[shortURL].userID) {
+      userOwns = true;
+    } else {
+      userOwns = false;
+    }
   }
-}
   const templateVars =  { shortURL, longURL, user, userOwns };
   res.render('pages/urls_show', templateVars);
   
@@ -185,16 +181,16 @@ app.get('/urls/:shortURL', (req, res) => {
 // /urls displays URLDatabase object
 app.get('/urls', (req, res) => {
   if (req.session.userID) {
-  let userID = req.session.userID;
-  let user = users[userID];
-  const urlsForPage = urlsForUser(userID, URLDatabase);
-  const templateVars = { urls: urlsForPage, user, };
-  res.render('pages/urls_index', templateVars);
+    let userID = req.session.userID;
+    let user = users[userID];
+    const urlsForPage = urlsForUser(userID, URLDatabase);
+    const templateVars = { urls: urlsForPage, user, };
+    res.render('pages/urls_index', templateVars);
   // If not logged in, page indicates that users must be logged in to access URLS
   } else {
     let user = null;
     let url = null;
-    const templateVars = { user, urls: url }
+    const templateVars = { user, urls: url };
     res.render('pages/urls_index', templateVars);
   }
 });
@@ -202,7 +198,7 @@ app.get('/urls', (req, res) => {
 //Routing for urls: shortURL page
 app.get('/u/:shortURL', (req, res) => {
   if (!URLDatabase[req.params.shortURL]) {
-    res.send('<h1>Error. No URLS registered for that ID</h1>')
+    res.send('<h1>Error. No URLS registered for that ID</h1>');
   }
   const longURL = URLDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
