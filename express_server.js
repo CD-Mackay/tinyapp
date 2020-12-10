@@ -1,6 +1,5 @@
 //module.require = { userExists, passwordIsValid, getUserID, urlsForUser };
 const { userExists } = require('./helpers');
-const { passwordIsValid } = require('./helpers');
 const { getUserID } = require('./helpers');
 const { urlsForUser } = require('./helpers');
 const { generateRandomString } = require('./helpers');
@@ -29,13 +28,13 @@ const URLDatabase = {
 };
 
 // User Database (shamelessly stolen from Compass)
-const users = { 
+const users = {
   'wym92o':
    { id: 'wym92o',
      email: 'user@example.com',
      password: '$2b$10$F76oVw2iH0Ds31OfdICK/O3awH4S138IrgQMt.hJK3xTzvB.giSX6'
-     },
-     q6nlil:
+   },
+  q6nlil:
      { id: 'q6nlil',
        email: 'user2@example.com',
        password:
@@ -52,9 +51,9 @@ const users = {
 app.get('/login', (req, res) => {
   let userID = req.session.userID;
   let user = users[userID];
-  let templateVars = { user }
+  let templateVars = { user };
   res.render('pages/login', templateVars);
-})
+});
 
 // Routing for LOGIN requests
 app.post('/login', (req, res) => {
@@ -66,9 +65,9 @@ app.post('/login', (req, res) => {
     req.session.userID = userID;
     res.redirect('/urls');
   } else if (!userExists(email, users)) {
-    res.send('Invalid email. Status code 403')
+    res.send('Invalid email. Status code 403');
   } else if (!bcrypt.compareSync(password, users[userID].password)) {
-    res.send('Invalid Password. StatusCode 403')
+    res.send('Invalid Password. StatusCode 403');
   }
 
 });
@@ -85,7 +84,7 @@ app.get('/register', (req, res) => {
   let userID = req.session.userID;
   let user = users[userID];
   const templateVars = { user };
-  res.render('pages/registration', templateVars)
+  res.render('pages/registration', templateVars);
 });
 
 //Routing to register a new user
@@ -95,13 +94,13 @@ app.post('/register', (req, res) => {
   let password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
   if (!userExists(email, URLDatabase) && password !== "") {
-  users[userID] = {id: userID, email, password: hashedPassword};
-  req.session.userID = userID;
+    users[userID] = {id: userID, email, password: hashedPassword};
+    req.session.userID = userID;
   } else {
     res.send('<h1>400 error. Invalid email and/ or password</h1>');
   }
   res.redirect('/urls');
-})
+});
 
 //Post request routing for new urls
 app.post('/urls', (req, res) => {
@@ -114,8 +113,8 @@ app.post('/urls', (req, res) => {
 app.post('/urls/:shortURL/delete', (req, res) => {
   let shortURL = req.params.shortURL;
   if (req.session.userID) {
-  delete URLDatabase[shortURL];
-  res.redirect('/urls');
+    delete URLDatabase[shortURL];
+    res.redirect('/urls');
   } else {
     res.redirect('/login');
   }
@@ -126,8 +125,8 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 app.post('/urls/:shortURL/edit', (req, res) => {
   let shortURL = req.params.shortURL;
   if (req.session.userID) {
-  URLDatabase[shortURL] = { longURL: req.body.longURL, userID: req.session.userID };
-  res.redirect('/urls');
+    URLDatabase[shortURL] = { longURL: req.body.longURL, userID: req.session.userID };
+    res.redirect('/urls');
   } else {
     res.redirect('/login');
   }
@@ -138,7 +137,7 @@ app.get('/urls/show/:shortURL', (req, res) => {
   let shortURL = req.params.shortURL;
   let userID = req.session.userID;
   let user = users[userID];
-  const templateVars =  { shortURL, longURL: URLDatabase[shortURL], user }; 
+  const templateVars =  { shortURL, longURL: URLDatabase[shortURL], user };
   res.render('pages/urls_show', templateVars);
 });
 

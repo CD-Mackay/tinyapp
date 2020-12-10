@@ -18,7 +18,7 @@ const getUserID = function(email, database) {
 
 // Retrieve list of URLS associated with userID
 const urlsForUser = function(id, database) {
-  let results = {}
+  let results = {};
   for (const url in database) {
     if (database[url].userID === id) {
       results[url] = database[url].longURL;
@@ -31,4 +31,4 @@ const generateRandomString = function() {
   return Math.random().toString(36).substring(2, 8);
 };
 
-module.exports = { userExists, getUserID, urlsForUser, generateRandomString }
+module.exports = { userExists, getUserID, urlsForUser, generateRandomString };
