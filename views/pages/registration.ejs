@@ -8,9 +8,12 @@
   <%- include ('../partials/_header') %>
   <h1>Register new User</h1>
   <form action="/register" method="POST">
-    <input type="email" name="email" placeholder="email goes here" value="">
-    <input type="password" name="password" placeholder="ooooh secret password!">
-    <button type="submit">RRRRRegister!</button>
+    <p>Email adress</p>
+    <input type="email" name="email" placeholder="Enter email" value="">
+    <p>Password</p>
+    <input type="password" name="password" placeholder="secret password!">
+    <br>
+    <button class="btn btn-primary" type="submit" style="margin-top: 10px;">Register!</button>
   </form>
 
 <!--BootStrap Engaged!-->
