@@ -22,11 +22,11 @@
     </div>
     <% } else if (!user){ %>
       <div class="card text-center">
-        <p class="card-text">You must be logged in to edit URLS.</p>
+        <p class="card-text">Error: You must be logged in to edit URLS.</p>
       </div>
       <% } else if (!userOwns) { %>
         <div class="card text-center">
-          <p class="card-text">You can only edit URLs you have created.</p>
+          <p class="card-text">Error: You can only edit URLs you have created.</p>
         </div>
         <% } %>
     <!--BootStrap Engaged!-->
