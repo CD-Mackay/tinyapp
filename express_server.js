@@ -103,8 +103,11 @@ app.post('/register', (req, res) => {
   if (!userExists(email, users) && password !== "") {
     users[userID] = {id: userID, email, password: hashedPassword};
     req.session.userID = userID;
-  } else {
-    res.send('<h1>400 error. Invalid email</h1>'); }
+  } else if (userExists(email, users)) {
+    res.send('<h1>400 error. That email address is already registered.</h1>'); 
+  } else if (password === "") {
+      res.send('<h1>400 error. Please enter a valid password.</h1>');
+    }
   res.redirect('/urls');
 });
 
