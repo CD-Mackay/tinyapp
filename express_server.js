@@ -8,10 +8,8 @@ const app = express();
 const port = 8080;
 const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
 app.use(cookieSession({
   name: 'session',
   keys: ['key1']
@@ -71,6 +69,15 @@ app.post('/login', (req, res) => {
 
 });
 
+//Routing for homepage (GET /)
+app.get('/', (req, res) => {
+  if (req.session.userID) {
+    res.redirect('/urls')
+  } else {
+    res.redirect('/login');
+  }
+})
+
 //Routing for LOGOUT
 app.post('/logout', (req, res) => {
   res.clearCookie('userID');
@@ -92,7 +99,7 @@ app.post('/register', (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
-  if (!userExists(email, URLDatabase) && password !== "") {
+  if (!userExists(email, users) && password !== "") {
     users[userID] = {id: userID, email, password: hashedPassword};
     req.session.userID = userID;
   } else {
