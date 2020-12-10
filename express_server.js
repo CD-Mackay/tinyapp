@@ -48,6 +48,9 @@ const users = {
 
 // Routing for LOGIN Page
 app.get('/login', (req, res) => {
+  if (req.session.userID) {
+    res.redirect('/urls');
+  }
   let userID = req.session.userID;
   let user = users[userID];
   let templateVars = { user };
@@ -88,6 +91,9 @@ app.post('/logout', (req, res) => {
 
 //Routing for registration page
 app.get('/register', (req, res) => {
+  if (req.session.userID) {
+    res.redirect('/urls');
+  }
   let userID = req.session.userID;
   let user = users[userID];
   const templateVars = { user };
@@ -155,6 +161,9 @@ app.get('/urls/new', (req, res) => {
 //Routing for URLS/show page
 app.get('/urls/:shortURL', (req, res) => {
   let shortURL = req.params.shortURL;
+  if (!URLDatabase[shortURL]) {
+    res.send('<h1>Error. No URLS registered for that ID</h1>')
+  }
   let longURL = URLDatabase[shortURL].longURL;
   let userID = req.session.userID;
   let user = users[userID];
@@ -181,6 +190,7 @@ app.get('/urls', (req, res) => {
   const urlsForPage = urlsForUser(userID, URLDatabase);
   const templateVars = { urls: urlsForPage, user, };
   res.render('pages/urls_index', templateVars);
+  // If not logged in, page indicates that users must be logged in to access URLS
   } else {
     let user = null;
     let url = null;
@@ -191,7 +201,9 @@ app.get('/urls', (req, res) => {
 
 //Routing for urls: shortURL page
 app.get('/u/:shortURL', (req, res) => {
-  console.log(req.params);
+  if (!URLDatabase[req.params.shortURL]) {
+    res.send('<h1>Error. No URLS registered for that ID</h1>')
+  }
   const longURL = URLDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
