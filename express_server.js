@@ -60,7 +60,6 @@ app.post('/login', (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
   let userID = getUserID(email, users);
-  console.log(email, users);
   if (userExists(email, users) && bcrypt.compareSync(password, users[userID].password)) {
     req.session.userID = userID;
     res.redirect('/urls');
