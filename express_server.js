@@ -104,7 +104,7 @@ app.post('/register', (req, res) => {
     req.session.userID = userID;
   } else if (userExists(email, users)) {
     res.send('<h1>400 error. That email address is already registered.</h1>');
-  } else if (password === "") {
+  } else if (req.body.password === "") {
     res.send('<h1>400 error. Please enter a valid password.</h1>');
   }
   res.redirect('/urls');
@@ -160,7 +160,7 @@ app.get('/urls/:shortURL', (req, res) => {
   let longURL = URLDatabase[shortURL].longURL;
   let userID = req.session.userID;
   let user = users[userID];
-  let userOwns;
+  let userOwns; // userOwns variable prevents users from editing another user's URLS
   if (user) {
     if (user.id === URLDatabase[shortURL].userID) {
       userOwns = true;
