@@ -4,9 +4,12 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["Homepage for registered users"](https://github.com/CD-Mackay/tinyapp/blob/master/docs/urls_home.png?raw=true)
-!["Create new shortened URLS"](https://github.com/CD-Mackay/tinyapp/blob/master/docs/urls_new.png?raw=true)
-!["Or modify existing ones"](https://github.com/CD-Mackay/tinyapp/blob/master/docs/urls_edit.png?raw=true)
+!["Homepage for registered users"]
+(https://github.com/CD-Mackay/tinyapp/blob/master/docs/urls_home.png?raw=true)
+!["Create new shortened URLS"]
+(https://github.com/CD-Mackay/tinyapp/blob/master/docs/urls_new.png?raw=true)
+!["Or modify existing ones"]
+(https://github.com/CD-Mackay/tinyapp/blob/master/docs/urls_edit.png?raw=true)
 
 ## Dependencies
 
