@@ -65,7 +65,6 @@ app.post('/login', (req, res) => {
   } else if (!bcrypt.compareSync(password, users[userID].password)) {
     res.send('Invalid Password. StatusCode 403');
   }
-
 });
 
 //Routing for homepage (GET /)
@@ -86,12 +85,12 @@ app.post('/logout', (req, res) => {
 
 //Routing for registration page
 app.get('/register', (req, res) => {
-  if (req.session.userID) {
-    res.redirect('/urls');
-  }
   let userID = req.session.userID;
   let user = users[userID];
   const templateVars = { user };
+  if (req.session.userID) {
+    res.redirect('/urls');
+  }
   res.render('pages/registration', templateVars);
 });
 
@@ -99,12 +98,10 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
   let userID = generateRandomString();
   let email = req.body.email;
-  let password = req.body.password
   const hashedPassword = bcrypt.hashSync(req.body.password, 10);
-  if (!userExists(email, users) && password !== "") {
+  if (!userExists(email, users) && req.body.password !== "") {
     users[userID] = {id: userID, email, password: hashedPassword};
     req.session.userID = userID;
-    console.log(users);
   } else if (userExists(email, users)) {
     res.send('<h1>400 error. That email address is already registered.</h1>');
   } else if (password === "") {
@@ -165,7 +162,6 @@ app.get('/urls/:shortURL', (req, res) => {
   let user = users[userID];
   let userOwns;
   if (user) {
-    console.log(user);
     if (user.id === URLDatabase[shortURL].userID) {
       userOwns = true;
     } else {
