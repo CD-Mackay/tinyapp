@@ -19,6 +19,7 @@
         </tr>
         </thead>
         <tbody>
+          <% if (urls) { %>
           <% for(let url in urls) { %>
             <tr>
               <td><%= url %></td>
@@ -29,10 +30,14 @@
               </form>
             </td>
             <td>
-              <a href="/urls/show/<%=url%>">Edit</a>
+              <a href="/urls/<%=url%>">Edit</a>
             </td>
             </tr>
             <% } %>
+            <% } else { %>
+              <p>You must be logged in to view URLS</p>
+              <% } %>
+
             <tr><a href="/urls/new">Click here to shorten your own URL</a></tr>
         </tbody>
       </table>
