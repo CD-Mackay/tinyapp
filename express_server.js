@@ -107,7 +107,7 @@ app.post('/register', (req, res) => {
   } else if (req.body.password === "") {
     res.send('<h1>400 error. Please enter a valid password.</h1>');
   } else if (email === "") {
-    res.send('<h1>400 error. Please enter a valid email.</h1>')
+    res.send('<h1>400 error. Please enter a valid email.</h1>');
   }
   res.redirect('/urls');
 });
@@ -122,7 +122,7 @@ app.post('/urls', (req, res) => {
 // Routing for delete requests
 app.post('/urls/:shortURL/delete', (req, res) => {
   let shortURL = req.params.shortURL;
-  if (req.session.userID) {
+  if (req.session.userID && req.session.userID === URLDatabase[shortURL].userID) {
     delete URLDatabase[shortURL];
     res.redirect('/urls');
   } else {
@@ -133,7 +133,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 //Routing to handle updates to URLS
 app.post('/urls/:shortURL/edit', (req, res) => {
   let shortURL = req.params.shortURL;
-  if (req.session.userID) {
+  if (req.session.userID && req.session.userID === URLDatabase[shortURL].userID) {
     URLDatabase[shortURL] = { longURL: req.body.longURL, userID: req.session.userID };
     res.redirect('/urls');
   } else {
