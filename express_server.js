@@ -99,13 +99,15 @@ app.post('/register', (req, res) => {
   let userID = generateRandomString();
   let email = req.body.email;
   const hashedPassword = bcrypt.hashSync(req.body.password, 10);
-  if (!userExists(email, users) && req.body.password !== "") {
+  if ((email !== "") && (!userExists(email, users) && req.body.password !== "")) {
     users[userID] = {id: userID, email, password: hashedPassword};
     req.session.userID = userID;
   } else if (userExists(email, users)) {
     res.send('<h1>400 error. That email address is already registered.</h1>');
   } else if (req.body.password === "") {
     res.send('<h1>400 error. Please enter a valid password.</h1>');
+  } else if (email === "") {
+    res.send('<h1>400 error. Please enter a valid email.</h1>')
   }
   res.redirect('/urls');
 });
